@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = 'build/Release/two-stage-sorting-system-stm32.hex'
+elf = 'build/Release/two-stage-sorting-system-stm32.elf'
