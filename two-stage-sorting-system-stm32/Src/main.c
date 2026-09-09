@@ -17,9 +17,39 @@
  */
 
 #include <stdint.h>
+#include "reset_and_control_clock.h"
+#include "interrupt.h"
+#include "gpio.h"
+#include "stm32c031xx.h"
+
+static volatile uint32_t p2_button = 0;
+static volatile uint32_t counter = 0;
+
 
 int main(void)
 {
+    enable_port_clock(A);
+    init_pin(GPIOA, 2, MODE_INPUT, PULL_DOWN);
+    init_pin(GPIOA, 9, MODE_OUTPUT, NONE);
+    enable_interrupt(A, RISING, 2, 1);
+
     /* Loop forever */
-	for(;;);
+	while (1) {
+        if (counter > 0) {
+            counter--;
+        } else if (p2_button) {
+            p2_button = 0;
+            pin_write(GPIOA, 9, PIN_LOW);
+        }
+    }
+}
+
+void EXTI2_3_IRQHandler() {
+
+    if (EXTI->RPR1 & (1 << 2)) {
+        p2_button = 1;
+        counter = 100000;
+        EXTI->RPR1 |= (1 << 2);
+        pin_write(GPIOA, 9, PIN_HIGH);
+    }
 }

@@ -39,6 +39,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     $<$<COMPILE_LANGUAGE:C>: ${include_C_DIRS}>
     $<$<COMPILE_LANGUAGE:CXX>: ${include_cxx_DIRS}>
     $<$<COMPILE_LANGUAGE:ASM>: ${include_asm_DIRS}>
+    Inc/drivers/CMSIS/Core/Include
+    Inc/drivers/cmsis_device_c0/Include
     Inc/drivers
 )
 
