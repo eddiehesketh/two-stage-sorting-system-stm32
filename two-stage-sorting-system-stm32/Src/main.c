@@ -21,6 +21,7 @@
 #include "interrupt.h"
 #include "gpio.h"
 #include "stm32c031xx.h"
+#include "timer.h"
 
 static volatile uint32_t p2_button = 0;
 static volatile uint32_t counter = 0;
@@ -31,7 +32,10 @@ int main(void)
     enable_port_clock(A);
     init_pin(GPIOA, 2, MODE_INPUT, PULL_DOWN);
     init_pin(GPIOA, 9, MODE_OUTPUT, NONE);
+    init_pin(GPIOA, 5, MODE_OUTPUT, NONE);
+
     enable_interrupt(A, RISING, 2, 1);
+    enable_timer(TIM16, 65534, 5000);
 
     /* Loop forever */
 	while (1) {
@@ -48,8 +52,15 @@ void EXTI2_3_IRQHandler() {
 
     if (EXTI->RPR1 & (1 << 2)) {
         p2_button = 1;
-        counter = 100000;
+        counter = 1000000;
         EXTI->RPR1 |= (1 << 2);
         pin_write(GPIOA, 9, PIN_HIGH);
+    }
+}
+
+void TIM16_IRQHandler() {
+    if (TIM16->SR & (1 << 0)) {
+        TIM16->SR &= ~(1 << 0);
+        toggle_output(GPIOA, 5);
     }
 }
