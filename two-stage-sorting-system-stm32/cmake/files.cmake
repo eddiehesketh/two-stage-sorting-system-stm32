@@ -7,6 +7,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/gpio.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/interrupt.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/timer.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Src/pwm.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/Src/startup_stm32c031xx.S"
 )
 

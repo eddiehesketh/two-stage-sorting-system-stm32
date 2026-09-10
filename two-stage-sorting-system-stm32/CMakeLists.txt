@@ -41,7 +41,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     $<$<COMPILE_LANGUAGE:ASM>: ${include_asm_DIRS}>
     Inc/drivers/CMSIS/Core/Include
     Inc/drivers/cmsis_device_c0/Include
-    Inc/drivers
+    Inc/drivers/wrappers
 )
 
 # Compiler options
