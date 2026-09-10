@@ -1,3 +1,7 @@
+#pragma once
+#include "gpio.h"
+#include "stm32c031xx.h"
+
 typedef enum {
     OFF = 0,
     RED,
