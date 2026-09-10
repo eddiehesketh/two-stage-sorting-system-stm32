@@ -21,7 +21,7 @@
 #include "interrupt.h"
 #include "gpio.h"
 #include "stm32c031xx.h"
-#include "assignment_1.h"
+#include "generate.h"
 #include "timer.h"
 #include "pwm.h"
 
@@ -59,7 +59,7 @@ void initialise_outputs() {
 
 int main(void)
 {
-    SysTick_Init();
+    systick_init();
     enable_port_clock(A);
     enable_port_clock(B);
     enable_port_clock(C);
@@ -93,7 +93,7 @@ int main(void)
 void EXTI2_3_IRQHandler() {
     if (EXTI->RPR1 & (1 << 2)) {
         EXTI->RPR1 |= (1 << 2);
-        Generate_Next_Item();
+        generate_next_item();
     } 
 }
 
