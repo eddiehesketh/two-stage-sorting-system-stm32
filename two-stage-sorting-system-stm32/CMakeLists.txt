@@ -42,6 +42,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     Inc/drivers/CMSIS/Core/Include
     Inc/drivers/cmsis_device_c0/Include
     Inc/drivers/wrappers
+    Inc/drivers/logic
 )
 
 # Compiler options

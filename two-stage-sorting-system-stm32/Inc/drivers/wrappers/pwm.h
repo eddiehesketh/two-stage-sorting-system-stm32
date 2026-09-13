@@ -2,6 +2,7 @@
 
 #include "stm32c0xx.h"
 #include "timer.h"
+#include "pwm_logic.h"
 
 typedef enum {
     CCM_OUTPUT = 0,
@@ -14,5 +15,5 @@ typedef enum {
     PWM_MODE_2 = 0x7
 } pwm_mode;
 
-void enable_cap_com(GPIO_TypeDef * port, uint8_t pin, uint8_t channel, uint8_t af, uint16_t duty_us, uint16_t arr, uint16_t psc);
+void enable_cap_com(GPIO_TypeDef * port, uint8_t pin, uint8_t channel, uint8_t af, uint16_t duty_us);
 

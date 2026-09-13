@@ -1,4 +1,5 @@
 #include "generate.h"
+#include "pwm_logic.h"
 #include "stm32c031xx.h"
 
 volatile uint32_t lfsr_state = 0xA5A5A5A5;
@@ -50,14 +51,23 @@ item_colour_t apply_lfsr_fault(item_colour_t true_col) {
 // Subroutine to generate item and sensor detection 
 void generate_next_item(void) {
     lfsr_state ^= SysTick->VAL;
+
     item_colour_t truth_colour = (item_colour_t)((lfsr_state % 3) + 1);
     item_colour_t sensor_colour = apply_lfsr_fault(truth_colour);
+
     set_truth_rgb(truth_colour);
     set_sensor_rgb(sensor_colour);
+
     if (truth_colour != sensor_colour) {
         pin_write(GPIOA, 9, PIN_HIGH);
     } else {
         pin_write(GPIOA, 9, PIN_LOW);
     }
+
+    // if (sensor_colour == BLUE) {
+    //     object_detected_blue();
+    // } else {
+    //     object_detected_not_blue();
+    // }
 }
 

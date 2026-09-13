@@ -42,6 +42,8 @@ void initialise_inputs() {
 void initialise_pwm() {
     init_pin(GPIOC, 7, MODE_ALT, NONE);
     init_pin(GPIOB, 0, MODE_ALT, NONE);
+    enable_cap_com(GPIOC, 7, 2, 1, SERVO_MID_US);
+    // enable_cap_com(GPIOB, 0, 3, 1, SERVO_MID_US);
 }
 
 void initialise_outputs() {
@@ -57,6 +59,11 @@ void initialise_outputs() {
 }
 
 
+void initialise_timer() {
+    enable_timer(TIM3, 19999, 47, 1);
+}
+
+
 int main(void)
 {
     systick_init();
@@ -66,8 +73,9 @@ int main(void)
     initialise_inputs();
     initialise_pwm();
     initialise_outputs();
+    initialise_timer();
 
-    enable_interrupt(A, RISING, 2, 1);
+    enable_interrupt(A, RISING, 2, 0);
 
 
     // init_pin(GPIOA, 2, MODE_INPUT, PULL_DOWN);
@@ -95,6 +103,22 @@ void EXTI2_3_IRQHandler() {
         EXTI->RPR1 |= (1 << 2);
         generate_next_item();
     } 
+}
+
+void TIM3_IRQHandler() {
+    // static uint16_t servo_1_pos = SERVO_MID_US;
+
+    if (TIM3->SR & (1 << 0)) {
+        TIM3->SR &= ~(1 << 0);
+
+        if (pin_read(GPIOA, 8)) {
+            TIM3->CCR2 = SERVO_MIN_US;
+        } else if (pin_read(GPIOA, 11) || pin_read(GPIOA, 3)) {
+            TIM3->CCR2 = SERVO_MAX_US;
+        } else {
+            TIM3->CCR2 = SERVO_MID_US;
+        }
+    }
 }
 
 // void EXTI2_3_IRQHandler() {
