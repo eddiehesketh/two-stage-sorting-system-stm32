@@ -9,6 +9,7 @@ typedef enum {
     BOTH
 } edge_trigger_mode;
 
-void enable_interrupt(gpio_port port, edge_trigger_mode mode, uint8_t pin, uint8_t priority);
+void enable_interrupt_priority(gpio_port port, edge_trigger_mode mode, uint8_t pin, uint8_t priority);
+void enable_interrupt(gpio_port port, edge_trigger_mode mode, uint8_t pin);
 
 

@@ -33,7 +33,7 @@ static void monitor_falling_edge(uint8_t pin) {
 }
 
 // up to main.c to define the handler
-void enable_interrupt(gpio_port port, edge_trigger_mode mode, uint8_t pin, uint8_t priority) {
+void enable_interrupt_priority(gpio_port port, edge_trigger_mode mode, uint8_t pin, uint8_t priority) {
     configure_pin(port, pin);
     enable_nvic_inform(pin);
     
@@ -50,6 +50,24 @@ void enable_interrupt(gpio_port port, edge_trigger_mode mode, uint8_t pin, uint8
     IRQn_Type interrupt_type = pin < 2 ? EXTI0_1_IRQn : (pin < 4 ? EXTI2_3_IRQn : EXTI4_15_IRQn);
 
     NVIC_SetPriority(interrupt_type, priority);
+    NVIC_EnableIRQ(interrupt_type);
+}
+void enable_interrupt(gpio_port port, edge_trigger_mode mode, uint8_t pin) {
+    configure_pin(port, pin);
+    enable_nvic_inform(pin);
+    
+    if (mode == FALLING || mode == BOTH) {
+        enable_falling_edge_interrupt(pin);
+        monitor_falling_edge(pin);
+    }
+
+    if (mode == RISING || mode == BOTH) {
+        enable_rising_edge_interrupt(pin);
+        monitor_rising_edge(pin);
+    }
+
+    IRQn_Type interrupt_type = pin < 2 ? EXTI0_1_IRQn : (pin < 4 ? EXTI2_3_IRQn : EXTI4_15_IRQn);
+
     NVIC_EnableIRQ(interrupt_type);
 }
 

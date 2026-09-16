@@ -30,14 +30,14 @@ static IRQn_Type enable_rcc_and_get_type(TIM_TypeDef * tim) {
 
 
 
-void enable_timer(TIM_TypeDef * tim, uint16_t arr, uint16_t psc, uint8_t priority) {
+void enable_timer(TIM_TypeDef * tim, uint16_t arr, uint16_t psc) {
     IRQn_Type nvic_type = enable_rcc_and_get_type(tim);
 
     tim->PSC = psc;
     tim->ARR = arr;
     tim->DIER |= (1 << 0);
 
-    NVIC_SetPriority(nvic_type, priority);
+    // NVIC_SetPriority(nvic_type, priority);
     NVIC_EnableIRQ(nvic_type);
 
     tim->CR1 |= (1 << 0);

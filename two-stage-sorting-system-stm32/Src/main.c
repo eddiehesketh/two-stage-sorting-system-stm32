@@ -27,7 +27,7 @@
 
 #define SERVO_MIN_US 500 // 1.0 ms = ~0 degrees
 #define SERVO_MID_US 1500 // 1.5 ms = ~90 degrees
-#define SERVO_MAX_US 2500
+#define SERVO_MAX_US 2000
 
 static volatile uint16_t duty = 500;
 static volatile uint16_t del_t = 11;
@@ -43,24 +43,24 @@ void initialise_pwm() {
     init_pin(GPIOC, 7, MODE_ALT, NONE);
     init_pin(GPIOB, 0, MODE_ALT, NONE);
     enable_cap_com(GPIOC, 7, 2, 1, SERVO_MID_US);
-    // enable_cap_com(GPIOB, 0, 3, 1, SERVO_MID_US);
+    enable_cap_com(GPIOB, 0, 3, 1, SERVO_MID_US);
 }
 
 void initialise_outputs() {
     init_pin(GPIOA, 9, MODE_OUTPUT, NONE); // status LED
 
     init_pin(GPIOA, 0, MODE_OUTPUT, NONE); // real colour: RGB LED -> red
-    init_pin(GPIOB, 1, MODE_OUTPUT, NONE); // real colour: RGB LED -> green
+    init_pin(GPIOA, 1, MODE_OUTPUT, NONE); // real colour: RGB LED -> green
     init_pin(GPIOA, 4, MODE_OUTPUT, NONE); // real colour: RGB LED -> blue
 
     init_pin(GPIOA, 3, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> red 
-    init_pin(GPIOB, 11, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> green 
+    init_pin(GPIOA, 11, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> green 
     init_pin(GPIOA, 8, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> blue 
 }
 
 
 void initialise_timer() {
-    enable_timer(TIM3, 19999, 47, 1);
+    enable_timer(TIM3, 19999, 47);
 }
 
 
@@ -75,7 +75,8 @@ int main(void)
     initialise_outputs();
     initialise_timer();
 
-    enable_interrupt(A, RISING, 2, 0);
+    enable_interrupt(A, RISING, 2);
+    enable_interrupt(B, RISING, 5);
 
 
     // init_pin(GPIOA, 2, MODE_INPUT, PULL_DOWN);
@@ -105,6 +106,20 @@ void EXTI2_3_IRQHandler() {
     } 
 }
 
+void EXTI4_15_IRQHandler() {
+    if (EXTI->RPR1 & (1 << 5)) {
+        EXTI->RPR1 |= (1 << 5);
+        pin_write(GPIOA, 9, PIN_HIGH);
+        pin_write(GPIOA, 3, PIN_LOW);
+        pin_write(GPIOA, 11, PIN_LOW);
+        pin_write(GPIOA, 8, PIN_LOW);
+        pin_write(GPIOA, 0, PIN_LOW);
+        pin_write(GPIOA, 1, PIN_LOW);
+        pin_write(GPIOA, 4, PIN_LOW);
+
+    }
+}
+
 void TIM3_IRQHandler() {
     // static uint16_t servo_1_pos = SERVO_MID_US;
 
@@ -113,11 +128,16 @@ void TIM3_IRQHandler() {
 
         if (pin_read(GPIOA, 8)) {
             TIM3->CCR2 = SERVO_MIN_US;
+            TIM3->CCR3 = SERVO_MID_US;
         } else if (pin_read(GPIOA, 11) || pin_read(GPIOA, 3)) {
-            TIM3->CCR2 = SERVO_MAX_US;
+            TIM3->CCR3 = SERVO_MAX_US;
+            TIM3->CCR2 = SERVO_MID_US;
         } else {
             TIM3->CCR2 = SERVO_MID_US;
+            TIM3->CCR3 = SERVO_MID_US;
         }
+            // TIM3->CCR3 = SERVO_MIN_US;
+
     }
 }
 

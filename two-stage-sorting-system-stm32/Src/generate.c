@@ -7,13 +7,13 @@ volatile uint32_t lfsr_state = 0xA5A5A5A5;
 
 static void set_sensor_rgb(item_colour_t sensor_colour) {
     pin_write(GPIOA, 3, PIN_LOW);
-    pin_write(GPIOB, 11, PIN_LOW);
+    pin_write(GPIOA, 11, PIN_LOW);
     pin_write(GPIOA, 8, PIN_LOW);
 
     if (sensor_colour == RED) {
         pin_write(GPIOA, 3, PIN_HIGH);
     } else if (sensor_colour == GREEN) {
-        pin_write(GPIOB, 11, PIN_HIGH);
+        pin_write(GPIOA, 11, PIN_HIGH);
     } else if (sensor_colour == BLUE) {
         pin_write(GPIOA, 8, PIN_HIGH);
     }
@@ -21,13 +21,13 @@ static void set_sensor_rgb(item_colour_t sensor_colour) {
 
 static void set_truth_rgb(item_colour_t truth_colour) {
     pin_write(GPIOA, 0, PIN_LOW);
-    pin_write(GPIOB, 1, PIN_LOW);
+    pin_write(GPIOA, 1, PIN_LOW);
     pin_write(GPIOA, 4, PIN_LOW);
 
     if (truth_colour == RED) {
         pin_write(GPIOA, 0, PIN_HIGH);
     } else if (truth_colour == GREEN) {
-        pin_write(GPIOB, 1, PIN_HIGH);
+        pin_write(GPIOA, 1, PIN_HIGH);
     } else if (truth_colour == BLUE) {
         pin_write(GPIOA, 4, PIN_HIGH);
     }

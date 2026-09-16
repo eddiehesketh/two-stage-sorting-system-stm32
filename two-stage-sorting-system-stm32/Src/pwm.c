@@ -48,16 +48,16 @@ static void set_ccmr_register_tim3(uint8_t channel, uint16_t duty_us, cc_mode cc
     }   
 }
 
-static void enable_timer_cap_com(uint8_t channel) {
-    TIM3->DIER |= (1 << channel);
-    TIM3->SR |= (1 << channel);
-}
+// static void enable_timer_cap_com(uint8_t channel) {
+//     TIM3->DIER |= (1 << channel);
+//     TIM3->SR |= (1 << channel);
+// }
 
 void enable_cap_com(GPIO_TypeDef * port, uint8_t pin, uint8_t channel, uint8_t af, uint16_t duty_us) {
     // enable_timer(TIM3, arr, psc, 2);
     set_alt_func(port, pin);
     set_af_alt_func(port, pin, af);
     set_ccmr_register_tim3(channel, duty_us, CCM_OUTPUT, PWM_MODE_1);
-    enable_timer_cap_com(channel);
+    // enable_timer_cap_com(channel);
     TIM3->EGR |= (1 << 0);
 }
