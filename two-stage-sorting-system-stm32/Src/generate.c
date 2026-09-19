@@ -58,11 +58,11 @@ void generate_next_item(void) {
     set_truth_rgb(truth_colour);
     set_sensor_rgb(sensor_colour);
 
-    if (truth_colour != sensor_colour) {
-        pin_write(GPIOA, 9, PIN_HIGH);
-    } else {
-        pin_write(GPIOA, 9, PIN_LOW);
-    }
+    // if (truth_colour != sensor_colour) {
+    //     pin_write(GPIOA, 9, PIN_HIGH);
+    // } else {
+    //     pin_write(GPIOA, 9, PIN_LOW);
+    // }
 
     // if (sensor_colour == BLUE) {
     //     object_detected_blue();
