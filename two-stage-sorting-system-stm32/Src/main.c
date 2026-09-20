@@ -133,20 +133,6 @@ int main(void)
     enable_interrupt(B, BOTH, 5);
 
 
-    // init_pin(GPIOA, 2, MODE_INPUT, PULL_DOWN);
-    // init_pin(GPIOA, 9, MODE_OUTPUT, NONE);
-    // init_pin(GPIOA, 5, MODE_OUTPUT, NONE);
-
-    // enable_port_clock(C);
-    // init_pin(GPIOC, 7, MODE_ALT, NONE);
-    // enable_cap_com(GPIOC, 7, 2, 1, 500, 19999, 47);
-
-
-    // enable_interrupt(A, BOTH, 2, 1);
-    // // enable_interrupt(A, FALLING, 2, 2);
-
-    // enable_timer(TIM16, 65534, 5000,2);
-
     /* Loop forever */
 	while (1) {
 
@@ -198,31 +184,3 @@ void TIM3_IRQHandler() {
         TIM3->CCR3 = servo_2_pos;
     }
 }
-
-// void EXTI2_3_IRQHandler() {
-//     if (EXTI->RPR1 & (1 << 2)) {
-//         EXTI->RPR1 |= (1 << 2);
-//         toggle_output(GPIOA, 9);
-//     } else if (EXTI->FPR1 & (1 << 2)) {
-//         EXTI->FPR1 |= (1 << 2);
-//         toggle_output(GPIOA, 9);
-//     }
-// }
-
-// void TIM3_IRQHandler() {
-//     if (TIM3->SR & (1 << 0)) {
-//         TIM3->SR &= ~(1 << 0);
-//         duty += del_t;
-//         if (duty >= SERVO_MAX_US || duty <= SERVO_MIN_US) { 
-//             del_t = -del_t;
-//         }
-//        servo_1_pos = duty;
-//     }
-// }
-
-// void TIM16_IRQHandler() {
-//     if (TIM16->SR & (1 << 0)) {
-//         TIM16->SR &= ~(1 << 0);
-//         toggle_output(GPIOA, 5);
-//     }
-// }
