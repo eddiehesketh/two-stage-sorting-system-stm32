@@ -16,10 +16,10 @@ static void initialise_inputs() {
 }
 
 static void initialise_pwm() {
-    init_pin(GPIOC, 7, MODE_ALT, NONE);
-    init_pin(GPIOB, 0, MODE_ALT, NONE);
-    enable_cap_com(GPIOC, 7, 2, 1, SERVO_MID_US);
-    enable_cap_com(GPIOB, 0, 3, 1, SERVO_MID_US);
+    init_pin(GPIOC, 7, MODE_ALT, NONE); // servo motor 1 -> PC7
+    init_pin(GPIOB, 0, MODE_ALT, NONE); // servo motor 2 -> PB0
+    enable_cap_com(GPIOC, 7, 2, 1, SERVO_MID_US); // enable cap com -> PC7
+    enable_cap_com(GPIOB, 0, 3, 1, SERVO_MID_US); // enable cap com -> PB0
 }
 
 static void initialise_outputs() {

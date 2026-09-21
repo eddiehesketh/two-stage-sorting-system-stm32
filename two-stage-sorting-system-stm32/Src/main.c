@@ -18,68 +18,7 @@
 
 #include <stdint.h>
 #include "init.h"
-
-#define SERVO_MIN_US (uint16_t)500 // 1.0 ms = ~0 degrees
-#define SERVO_45_DEG_ACW (uint16_t)1000
-#define SERVO_MID_US (uint16_t)1500 // 1.5 ms = ~90 degrees
-#define SERVO_45_DEG_CW (uint16_t)2000
-#define SERVO_MAX_US (uint16_t)2500
-
-typedef enum {
-    STAGE_0,
-    STAGE_1,
-    STAGE_2,
-    STAGE_3
-} sorting_stage;
-
-static sorting_stage current_stage = STAGE_0;
-static uint16_t servo_1_pos = SERVO_MID_US;
-static uint16_t servo_2_pos = SERVO_MID_US;
-
-
-
-void sorting_stage_fsm() {
-    switch (current_stage) {
-        case STAGE_0:
-            generate_next_item();
-            current_stage = STAGE_1;
-            break;
-        case STAGE_1:
-            if (pin_read(GPIOA, 8)) {
-                servo_1_pos = SERVO_45_DEG_ACW;
-            } else if (pin_read(GPIOA, 11) || pin_read(GPIOA, 3)) {
-                servo_1_pos = SERVO_45_DEG_CW;
-            } else {
-                servo_1_pos = SERVO_MID_US;
-            }
-            current_stage = STAGE_2;
-            break;
-        case STAGE_2:
-            if (pin_read(GPIOA, 11)) {
-                servo_2_pos = SERVO_45_DEG_ACW;
-            } else if (pin_read(GPIOA, 3)) {
-                servo_2_pos = SERVO_45_DEG_CW;
-            } else {
-                servo_2_pos = SERVO_MID_US;
-            }
-            current_stage = STAGE_3;
-            break;
-        case STAGE_3:
-            servo_1_pos = SERVO_MID_US;
-            servo_2_pos = SERVO_MID_US;
-            pin_write(GPIOA, 9, PIN_LOW);
-            pin_write(GPIOA, 3, PIN_LOW);
-            pin_write(GPIOA, 11, PIN_LOW);
-            pin_write(GPIOA, 8, PIN_LOW);
-            pin_write(GPIOA, 0, PIN_LOW);
-            pin_write(GPIOA, 1, PIN_LOW);
-            pin_write(GPIOA, 4, PIN_LOW);
-            current_stage = STAGE_0;
-            break;
-    }
-}
-
-
+#include "fsm.h"
 
 int main(void)
 {
@@ -119,7 +58,7 @@ void EXTI4_15_IRQHandler() {
 }
 
 void TIM3_IRQHandler() {
-    // static uint16_t servo_1_pos = SERVO_MID_US;
+    // static uint16_t servo_1_pos = SERVO_90_DEG;
 
     if (TIM3->SR & (1 << 0)) {
         TIM3->SR &= ~(1 << 0);
