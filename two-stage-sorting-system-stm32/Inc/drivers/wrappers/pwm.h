@@ -2,7 +2,7 @@
 
 #include "stm32c0xx.h"
 #include "timer.h"
-#include "pwm_logic.h"
+
 
 typedef enum {
     CCM_OUTPUT = 0,

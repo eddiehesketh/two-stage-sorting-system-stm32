@@ -17,13 +17,7 @@
  */
 
 #include <stdint.h>
-#include "reset_and_control_clock.h"
-#include "interrupt.h"
-#include "gpio.h"
-#include "stm32c031xx.h"
-#include "generate.h"
-#include "timer.h"
-#include "pwm.h"
+#include "init.h"
 
 #define SERVO_MIN_US (uint16_t)500 // 1.0 ms = ~0 degrees
 #define SERVO_45_DEG_ACW (uint16_t)1000
@@ -34,62 +28,21 @@
 typedef enum {
     STAGE_0,
     STAGE_1,
-    STAGE_2
+    STAGE_2,
+    STAGE_3
 } sorting_stage;
 
-static volatile uint16_t duty = 500;
-static volatile uint16_t del_t = 11;
 static sorting_stage current_stage = STAGE_0;
-static sorting_stage next_stage = STAGE_1;
 static uint16_t servo_1_pos = SERVO_MID_US;
 static uint16_t servo_2_pos = SERVO_MID_US;
 
 
 
-void initialise_inputs() {
-    init_pin(GPIOA, 2, MODE_INPUT, PULL_DOWN); // new item PA2
-    init_pin(GPIOA, 10, MODE_INPUT, PULL_DOWN); // step gate PA10
-    init_pin(GPIOB, 5, MODE_INPUT, PULL_DOWN); // E-stop PB5
-}
-
-void initialise_pwm() {
-    init_pin(GPIOC, 7, MODE_ALT, NONE);
-    init_pin(GPIOB, 0, MODE_ALT, NONE);
-    enable_cap_com(GPIOC, 7, 2, 1, SERVO_MID_US);
-    enable_cap_com(GPIOB, 0, 3, 1, SERVO_MID_US);
-}
-
-void initialise_outputs() {
-    init_pin(GPIOA, 9, MODE_OUTPUT, NONE); // status LED
-
-    init_pin(GPIOA, 0, MODE_OUTPUT, NONE); // real colour: RGB LED -> red
-    init_pin(GPIOA, 1, MODE_OUTPUT, NONE); // real colour: RGB LED -> green
-    init_pin(GPIOA, 4, MODE_OUTPUT, NONE); // real colour: RGB LED -> blue
-
-    init_pin(GPIOA, 3, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> red 
-    init_pin(GPIOA, 11, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> green 
-    init_pin(GPIOA, 8, MODE_OUTPUT, NONE); // sensed colour: RGB LED -> blue 
-}
-
-
-void initialise_timer() {
-    enable_timer(TIM3, 19999, 47);
-}
-
 void sorting_stage_fsm() {
-    current_stage = next_stage;
     switch (current_stage) {
         case STAGE_0:
-            next_stage = STAGE_1;
-            servo_1_pos = SERVO_MID_US;
-            servo_2_pos = SERVO_MID_US;
-            pin_write(GPIOA, 9, PIN_LOW);
-            pin_write(GPIOA, 3, PIN_LOW);
-            pin_write(GPIOA, 11, PIN_LOW);
-            pin_write(GPIOA, 8, PIN_LOW);
-            pin_write(GPIOA, 0, PIN_LOW);
-            pin_write(GPIOA, 1, PIN_LOW);
-            pin_write(GPIOA, 4, PIN_LOW);
+            generate_next_item();
+            current_stage = STAGE_1;
             break;
         case STAGE_1:
             if (pin_read(GPIOA, 8)) {
@@ -99,7 +52,7 @@ void sorting_stage_fsm() {
             } else {
                 servo_1_pos = SERVO_MID_US;
             }
-            next_stage = STAGE_2;
+            current_stage = STAGE_2;
             break;
         case STAGE_2:
             if (pin_read(GPIOA, 11)) {
@@ -109,29 +62,29 @@ void sorting_stage_fsm() {
             } else {
                 servo_2_pos = SERVO_MID_US;
             }
-            next_stage = STAGE_0;
+            current_stage = STAGE_3;
             break;
-        default:
+        case STAGE_3:
+            servo_1_pos = SERVO_MID_US;
+            servo_2_pos = SERVO_MID_US;
+            pin_write(GPIOA, 9, PIN_LOW);
+            pin_write(GPIOA, 3, PIN_LOW);
+            pin_write(GPIOA, 11, PIN_LOW);
+            pin_write(GPIOA, 8, PIN_LOW);
+            pin_write(GPIOA, 0, PIN_LOW);
+            pin_write(GPIOA, 1, PIN_LOW);
+            pin_write(GPIOA, 4, PIN_LOW);
+            current_stage = STAGE_0;
             break;
     }
 }
 
 
+
 int main(void)
 {
     systick_init();
-    enable_port_clock(A);
-    enable_port_clock(B);
-    enable_port_clock(C);
-    initialise_inputs();
-    initialise_pwm();
-    initialise_outputs();
-    initialise_timer();
-
-    enable_interrupt(A, RISING, 2);
-    enable_interrupt(A, RISING, 10);
-    enable_interrupt(B, BOTH, 5);
-
+    initialise_registers();
 
     /* Loop forever */
 	while (1) {
@@ -143,7 +96,7 @@ void EXTI2_3_IRQHandler() {
     if (EXTI->RPR1 & (1 << 2)) {
         EXTI->RPR1 |= (1 << 2);
         if (current_stage == STAGE_0) {
-            generate_next_item();
+            sorting_stage_fsm(); 
         }
     } 
 }
@@ -151,27 +104,17 @@ void EXTI2_3_IRQHandler() {
 void EXTI4_15_IRQHandler() {
     if (EXTI->RPR1 & (1 << 5)) {
         EXTI->RPR1 |= (1 << 5);
+        current_stage = STAGE_3;
+        sorting_stage_fsm();
         pin_write(GPIOA, 9, PIN_HIGH);
-        pin_write(GPIOA, 3, PIN_LOW);
-        pin_write(GPIOA, 11, PIN_LOW);
-        pin_write(GPIOA, 8, PIN_LOW);
-        pin_write(GPIOA, 0, PIN_LOW);
-        pin_write(GPIOA, 1, PIN_LOW);
-        pin_write(GPIOA, 4, PIN_LOW);
-        current_stage = STAGE_0;
-        next_stage = STAGE_1;
-        TIM3->CCR2 = SERVO_MID_US;
-        TIM3->CCR3 = SERVO_MID_US;
-        servo_1_pos = SERVO_MID_US;
-        servo_2_pos = SERVO_MID_US;
     } else if (EXTI->FPR1 & (1 << 5)) {
         EXTI->FPR1 |= (1 << 5);
         pin_write(GPIOA, 9, PIN_LOW);
     } else if (EXTI->RPR1 & (1 << 10)) {
         EXTI->RPR1 |= (1 << 10);
-        sorting_stage_fsm();
-
-
+        if (current_stage != STAGE_0) {
+            sorting_stage_fsm();
+        }
     }
 }
 

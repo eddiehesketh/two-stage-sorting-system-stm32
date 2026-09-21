@@ -1,5 +1,4 @@
 #include "generate.h"
-#include "pwm_logic.h"
 #include "stm32c031xx.h"
 
 volatile uint32_t lfsr_state = 0xA5A5A5A5;
