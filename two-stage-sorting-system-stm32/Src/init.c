@@ -1,4 +1,5 @@
 #include "init.h"
+#include "interrupt.h"
 
 #define SERVO_MID_US (uint16_t)1500 // 1.5 ms = ~90 degrees
 
@@ -37,7 +38,7 @@ static void initialise_outputs() {
 static void initialise_interrupts() {
     enable_interrupt(A, RISING, 2);
     enable_interrupt(A, RISING, 10);
-    enable_interrupt(B, BOTH, 5);
+    enable_interrupt(B, RISING, 5);
 }
 
 

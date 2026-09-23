@@ -43,12 +43,9 @@ void EXTI2_3_IRQHandler() {
 void EXTI4_15_IRQHandler() {
     if (EXTI->RPR1 & (1 << 5)) {
         EXTI->RPR1 |= (1 << 5);
-        current_stage = STAGE_3;
+        current_stage = STAGE_4;
         sorting_stage_fsm();
         pin_write(GPIOA, 9, PIN_HIGH);
-    } else if (EXTI->FPR1 & (1 << 5)) {
-        EXTI->FPR1 |= (1 << 5);
-        pin_write(GPIOA, 9, PIN_LOW);
     } else if (EXTI->RPR1 & (1 << 10)) {
         EXTI->RPR1 |= (1 << 10);
         if (current_stage != STAGE_0) {

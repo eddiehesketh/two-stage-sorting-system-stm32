@@ -47,6 +47,9 @@ void sorting_stage_fsm() {
             pin_write(GPIOA, 4, PIN_LOW); // truth blue
             current_stage = STAGE_0;
             break;
+        case STAGE_4: // cannot leave this stage
+            servo_1_pos = SERVO_90_DEG;
+            servo_2_pos = SERVO_90_DEG;
         default:
             break;
     }

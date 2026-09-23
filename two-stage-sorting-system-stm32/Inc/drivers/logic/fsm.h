@@ -7,7 +7,8 @@ typedef enum {
     STAGE_0, // new item: roll colour onto the RGB LEDs
     STAGE_1, // first gate from sensed blue vs green/red
     STAGE_2, // second gate from sensed green vs red
-    STAGE_3  // park servos, clear LEDs, return to STAGE_0
+    STAGE_3, // park servos, clear LEDs, return to STAGE_0
+    STAGE_4  // fault LED on, park servos, cant leave this state
 } sorting_stage;
 
 extern sorting_stage current_stage; // E-stop EXTI may force STAGE_3
