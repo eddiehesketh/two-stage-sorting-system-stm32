@@ -1,5 +1,4 @@
 #include "init.h"
-#include "interrupt.h"
 
 #define SERVO_MID_US (uint16_t)1500 // 1.5 ms = ~90 degrees
 
