@@ -34,35 +34,36 @@ int main(void)
     }
 }
 
+// Triggered on rising edge when new item (PA2) is pressed.
 void EXTI2_3_IRQHandler() {
-    if (EXTI->RPR1 & (1 << 2)) {
-        EXTI->RPR1 |= (1 << 2);
-        if (current_stage == STAGE_0) {
-            sorting_stage_fsm(); 
+    if (EXTI->RPR1 & (1 << 2)) { // check rising edge trigger bit set
+        EXTI->RPR1 |= (1 << 2); // clear bit
+        if (current_stage == STAGE_0) { // ensure not in sorting stage
+            sorting_stage_fsm(); // invoke fsm logic
         }
     } 
 }
 
+// Triggered on rising edge when step gate (PA10) or e-stop (PB5) are pressed.
 void EXTI4_15_IRQHandler() {
-    if (EXTI->RPR1 & (1 << 5)) {
-        EXTI->RPR1 |= (1 << 5);
-        current_stage = STAGE_4;
-        sorting_stage_fsm();
-        pin_write(GPIOA, 9, PIN_HIGH);
-    } else if (EXTI->RPR1 & (1 << 10)) {
-        EXTI->RPR1 |= (1 << 10);
-        if (current_stage != STAGE_0) {
-            sorting_stage_fsm();
+    if (EXTI->RPR1 & (1 << 5)) { // check rising edge trigger bit set for e-stop
+        EXTI->RPR1 |= (1 << 5); // clear bit
+        current_stage = STAGE_4; // set to binding state (can't leave state)
+        sorting_stage_fsm(); // invoke fsm logic
+        pin_write(GPIOA, 9, PIN_HIGH); // set fault led high
+    } else if (EXTI->RPR1 & (1 << 10)) { // check rising edge trigger bit for step gate
+        EXTI->RPR1 |= (1 << 10); // clear bit
+        if (current_stage != STAGE_0) { // ensure only in sorting stage
+            sorting_stage_fsm(); // invoke fsm logic
         }
     }
 }
 
+// Timer 3 interrupt every 20ms to set servo 1 and 2 positions.
 void TIM3_IRQHandler() {
-    // static uint16_t servo_1_pos = SERVO_90_DEG;
-
     if (TIM3->SR & (1 << 0)) {
-        TIM3->SR &= ~(1 << 0);
-        TIM3->CCR2 = servo_1_pos;
-        TIM3->CCR3 = servo_2_pos;
+        TIM3->SR &= ~(1 << 0); // clear flag
+        TIM3->CCR2 = servo_1_pos; // set servo 1 position
+        TIM3->CCR3 = servo_2_pos; // set servo 1 position
     }
 }
