@@ -8,4 +8,5 @@
 #include "timer.h"
 #include "pwm.h"
 
+// Initialise all registers.
 void initialise_registers();

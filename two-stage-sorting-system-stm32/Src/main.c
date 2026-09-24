@@ -22,7 +22,10 @@
 
 int main(void)
 {
+    // Configure ARM cortex pheripherals
     systick_init();
+
+    // Initalise all registers using wrapper functions
     initialise_registers();
 
     /* Loop forever */
