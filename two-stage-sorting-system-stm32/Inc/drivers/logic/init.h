@@ -8,5 +8,5 @@
 #include "timer.h"
 #include "pwm.h"
 
-// Initialise all registers.
+// Initialisation block of the main flow chart (clocks, GPIO, PWM, TIM3, NVIC)
 void initialise_registers();

@@ -9,6 +9,6 @@ typedef enum {
     BLUE
 } item_colour_t;
 
-item_colour_t apply_lfsr_fault(item_colour_t true_col);
-void generate_next_item(void);
+item_colour_t apply_lfsr_fault(item_colour_t true_col); // Fig. 1 STAGE_0 fault logic
+void generate_next_item(void); // Fig. 1 STAGE_0: truth + sensed colour onto RGB LEDs
 void systick_init(void);

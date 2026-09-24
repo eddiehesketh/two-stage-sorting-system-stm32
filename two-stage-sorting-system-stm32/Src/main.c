@@ -20,50 +20,56 @@
 #include "init.h"
 #include "fsm.h"
 
+// Main flow chart: System Power Up -> Initialisation -> idle loop.
+// New Item (PA2), E-Stop (PB5) / Step Gate (PA10), and TIM3 50 Hz PWM
+// run from the three ISRs below. Sorting decisions are in Fig. 1.
 int main(void)
 {
-    // Configure ARM cortex pheripherals
-    systick_init();
+    systick_init(); // SysTick seed used by generate_next_item() in Fig. 1 STAGE_0
 
-    // Initalise all registers using wrapper functions
-    initialise_registers();
+    initialise_registers(); // Initialisation block of the main flow chart
 
-    /* Loop forever */
+    // Loop forever
 	while (1) {
 
     }
 }
 
-// Triggered on rising edge when new item (PA2) is pressed.
+// Main flow chart: EXTI2_3_IRQHandler (New Item PA2)
 void EXTI2_3_IRQHandler() {
-    if (EXTI->RPR1 & (1 << 2)) { // check rising edge trigger bit set
-        EXTI->RPR1 |= (1 << 2); // clear bit
-        if (current_stage == STAGE_0) { // ensure not in sorting stage
-            sorting_stage_fsm(); // invoke fsm logic
+    if (EXTI->RPR1 & (1 << 2)) { // RPR1 bit 2 set? (New Item pressed)
+        EXTI->RPR1 |= (1 << 2); // Clear RPR1 bit 2 (write 1)
+        if (current_stage == STAGE_0) { // current_stage == STAGE_0?
+            sorting_stage_fsm(); // call sorting_stage_fsm() - see Fig. 1
         }
-    } 
+        // else: already sorting, ignore New Item and return
+    }
+    // else: not PA2, return
 }
 
-// Triggered on rising edge when step gate (PA10) or e-stop (PB5) are pressed.
+// Main flow chart: EXTI4_15_IRQHandler (E-Stop PB5 or Step Gate PA10)
 void EXTI4_15_IRQHandler() {
-    if (EXTI->RPR1 & (1 << 5)) { // check rising edge trigger bit set for e-stop
-        EXTI->RPR1 |= (1 << 5); // clear bit
-        current_stage = STAGE_4; // set to binding state (can't leave state)
-        sorting_stage_fsm(); // invoke fsm logic
-        pin_write(GPIOA, 9, PIN_HIGH); // set fault led high
-    } else if (EXTI->RPR1 & (1 << 10)) { // check rising edge trigger bit for step gate
-        EXTI->RPR1 |= (1 << 10); // clear bit
-        if (current_stage != STAGE_0) { // ensure only in sorting stage
-            sorting_stage_fsm(); // invoke fsm logic
+    if (EXTI->RPR1 & (1 << 5)) { // RPR1 bit 5 set? (E-Stop rising)
+        EXTI->RPR1 |= (1 << 5); // Clear RPR1 bit 5 (write 1)
+        current_stage = STAGE_4; // lock FSM in STAGE_4
+        sorting_stage_fsm(); // call sorting_stage_fsm() — see Fig. 1
+        pin_write(GPIOA, 9, PIN_HIGH); // PA9 Fault LED = HIGH
+    } else if (EXTI->RPR1 & (1 << 10)) { // RPR1 bit 10 set? (Step Gate pressed)
+        EXTI->RPR1 |= (1 << 10); // Clear RPR1 bit 10 (write 1)
+        if (current_stage != STAGE_0) { // current_stage != STAGE_0? (item present)
+            sorting_stage_fsm(); // call sorting_stage_fsm() — see Fig. 1
         }
+        // else: no item, ignore Step Gate and return
     }
+    // else: not PB5 or PA10, return
 }
 
-// Timer 3 interrupt every 20ms to set servo 1 and 2 positions.
+// Main flow chart: TIM3_IRQHandler (50 Hz update event)
 void TIM3_IRQHandler() {
-    if (TIM3->SR & (1 << 0)) {
-        TIM3->SR &= ~(1 << 0); // clear flag
-        TIM3->CCR2 = servo_1_pos; // set servo 1 position
-        TIM3->CCR3 = servo_2_pos; // set servo 1 position
+    if (TIM3->SR & (1 << 0)) { // TIM3 SR UIF bit 0 set?
+        TIM3->SR &= ~(1 << 0); // clear UIF
+        TIM3->CCR2 = servo_1_pos; // apply gate 1: CCR2 = servo_1_pos
+        TIM3->CCR3 = servo_2_pos; // apply gate 2: CCR3 = servo_2_pos
     }
+    // else: not an update event, return
 }

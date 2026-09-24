@@ -11,7 +11,7 @@ typedef enum {
     STAGE_4  // fault LED on, park servos, cant leave this state
 } sorting_stage;
 
-extern sorting_stage current_stage; // E-stop EXTI may force STAGE_3
+extern sorting_stage current_stage; // E-Stop EXTI may force STAGE_4
 extern uint16_t servo_1_pos; // TIM3 CH2 pulse, microseconds
 extern uint16_t servo_2_pos; // TIM3 CH3 pulse, microseconds
 
