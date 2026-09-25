@@ -11,9 +11,9 @@ typedef enum {
     STAGE_4  // fault LED on, park servos, cant leave this state
 } sorting_stage;
 
-extern sorting_stage current_stage; // E-Stop EXTI may force STAGE_4
-extern uint16_t servo_1_pos; // TIM3 CH2 pulse, microseconds
-extern uint16_t servo_2_pos; // TIM3 CH3 pulse, microseconds
+extern volatile sorting_stage current_stage; // E-Stop EXTI may force STAGE_4
+extern volatile uint16_t servo_1_pos; // TIM3 CH2 pulse, microseconds
+extern volatile uint16_t servo_2_pos; // TIM3 CH3 pulse, microseconds
 
 // One stage per call from EXTI (PA2 new item, PA10 step gate, PB5 E-stop)
 // Servo CCR values are applied in TIM3_IRQHandler, not here

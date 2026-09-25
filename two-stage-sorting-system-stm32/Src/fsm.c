@@ -6,9 +6,9 @@
 #define SERVO_45_DEG_CW (uint16_t)2000 // 2.0 ms, ~135 degrees
 
 // Init globals — Initialisation block of the main flow chart
-sorting_stage current_stage = STAGE_0;
-uint16_t servo_1_pos = SERVO_90_DEG; // TIM3 CH2 pulse, microseconds
-uint16_t servo_2_pos = SERVO_90_DEG; // TIM3 CH3 pulse, microseconds
+volatile sorting_stage current_stage = STAGE_0;
+volatile uint16_t servo_1_pos = SERVO_90_DEG; // TIM3 CH2 pulse, microseconds
+volatile uint16_t servo_2_pos = SERVO_90_DEG; // TIM3 CH3 pulse, microseconds
 
 // Fig. 1: sorting_stage_fsm() — one stage per EXTI call (PA2 / PA10 / PB5).
 // Gate CCR values are applied later in TIM3_IRQHandler (main flow chart).
