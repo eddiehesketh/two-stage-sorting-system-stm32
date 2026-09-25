@@ -56,6 +56,7 @@ void sorting_stage_fsm() {
             servo_1_pos = SERVO_90_DEG; // park gates
             servo_2_pos = SERVO_90_DEG;
             // do not change current_stage (locked in STAGE_4)
+            break;
         default:
             break;
     }
