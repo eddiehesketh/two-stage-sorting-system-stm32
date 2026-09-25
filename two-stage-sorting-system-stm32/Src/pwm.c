@@ -2,21 +2,23 @@
 #include "gpio.h"
 #include "stm32c031xx.h"
 
+// GPIOx_MODER: set this pin to alternate function
 static void set_alt_func(GPIO_TypeDef * port, uint8_t pin) {
-    uint8_t shift = 2 * pin; // GPIOx_MODER: 2 bits per pin
+    uint8_t shift = 2 * pin;
     port->MODER &= ~(3 << shift);
     port->MODER |= (MODE_ALT << shift);
 }
 
+// GPIOx_AFR: AFRL for pins 0-7, AFRH for pins 8-15, 4 bits per pin
 static void set_af_alt_func(GPIO_TypeDef * port, uint8_t pin, uint8_t af) {
-    uint8_t idx = pin / 8; // AFRL pins 0-7, AFRH pins 8-15
-    uint8_t shift = (pin % 8) * 4; // GPIOx_AFR: 4 bits per pin
+    uint8_t idx = pin / 8;
+    uint8_t shift = (pin % 8) * 4;
 
     port->AFR[idx] &= ~(0xF << shift);
     port->AFR[idx] |= (af << shift);
 }
 
-// CH1/2 in CCMR1, CH3/4 in CCMR2. CCxS then OCxM, CCR pulse, CCER CCxE
+// TIM3 PWM: CH1/2 in CCMR1, CH3/4 in CCMR2. Then CCR pulse and CCER enable.
 static void set_ccmr_register_tim3(uint8_t channel, uint16_t duty_us, cc_mode cc, pwm_mode pwm) {
     switch (channel) {
         case 1:
@@ -48,10 +50,10 @@ static void set_ccmr_register_tim3(uint8_t channel, uint16_t duty_us, cc_mode cc
     }
 }
 
-// UG loads PSC/ARR/CCR into the live registers
+// Put this pin on TIM3 PWM and load the first CCR value
 void enable_cap_com(GPIO_TypeDef * port, uint8_t pin, uint8_t channel, uint8_t af, uint16_t duty_us) {
     set_alt_func(port, pin);
     set_af_alt_func(port, pin, af);
     set_ccmr_register_tim3(channel, duty_us, CCM_OUTPUT, PWM_MODE_1);
-    TIM3->EGR |= (1 << 0); // UG
+    TIM3->EGR |= (1 << 0); // load PSC/ARR/CCR into the live registers
 }

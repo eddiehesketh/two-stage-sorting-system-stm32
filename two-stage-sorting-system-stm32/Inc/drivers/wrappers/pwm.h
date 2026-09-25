@@ -13,6 +13,5 @@ typedef enum {
     PWM_MODE_2 = 0x7 // CCMRx OCxM 111
 } pwm_mode;
 
-// TIM3 PWM output on this pin
-// duty_us is the CCR pulse width in microseconds (1 MHz timer tick)
+// TIM3 PWM on this pin. duty_us is the CCR pulse in microseconds (1 MHz tick).
 void enable_cap_com(GPIO_TypeDef * port, uint8_t pin, uint8_t channel, uint8_t af, uint16_t duty_us);

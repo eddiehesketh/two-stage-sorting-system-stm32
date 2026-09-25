@@ -9,5 +9,5 @@ typedef enum {
     F = 5  // RCC_IOPENR GPIOFEN; no GPIOE, bit 4 unused
 } gpio_port;
 
-// GPIO registers are not accessible until this bit is set
-void enable_port_clock(gpio_port port); // RCC_IOPENR
+// GPIO registers are not accessible until this bit is set (RCC_IOPENR)
+void enable_port_clock(gpio_port port);

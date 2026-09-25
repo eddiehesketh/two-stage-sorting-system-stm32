@@ -13,5 +13,5 @@ typedef enum {
 // priority is 0..3 (lower number preempts)
 void enable_interrupt_priority(gpio_port port, edge_trigger_mode mode, uint8_t pin, uint8_t priority);
 
-// Same EXTI/NVIC setup; NVIC priority left at reset (0).
+// Same EXTI/NVIC setup. NVIC priority left at reset
 void enable_interrupt(gpio_port port, edge_trigger_mode mode, uint8_t pin);

@@ -24,9 +24,9 @@ typedef enum {
     RESERVED = 3 // GPIOx_PUPDR 11
 } pupdr_mode;
 
-void pin_write(GPIO_TypeDef * port, uint8_t pin, pin_state state);
-void toggle_output(GPIO_TypeDef * port, uint8_t pin);
-uint8_t pin_read(GPIO_TypeDef * port, uint8_t pin);
+void pin_write(GPIO_TypeDef * port, uint8_t pin, pin_state state); // GPIOx_ODR
+void toggle_output(GPIO_TypeDef * port, uint8_t pin); // GPIOx_ODR toggle
+uint8_t pin_read(GPIO_TypeDef * port, uint8_t pin); // GPIOx_IDR
 
-// Leaves PUPDR unchanged when p_mode is NONE.
+// Set MODER. Leave PUPDR unchanged when p_mode is NONE.
 void init_pin(GPIO_TypeDef * port, uint8_t pin, pin_mode mode, pupdr_mode p_mode);
